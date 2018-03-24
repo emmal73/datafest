@@ -3,6 +3,7 @@
 ```{r}
 
 library(tidyverse)
+library(ggthemes)
 
 #datafestdata<-readr::read_csv("/Users/rileyboeth/Downloads/Datafest/dataFestReleaseFinal_3_23.csv")
 
@@ -21,70 +22,70 @@ library(tidyverse)
 
 ```{r}
 library(rpart)
-library(rpart.plot)
-train<-datafestdata%>%
-  filter(avgoverallcompanyrating != 0)%>%
-  slice(1:891975)
+#library(rpart.plot)
+#train<-datafestdata%>%
+ # filter(avgoverallcompanyrating != 0)%>%
+  #slice(1:891975)
 
-test<-datafestdata%>%
-  filter(avgoverallcompanyrating !=0)%>%
-  slice(891976:1274249)
+#test<-datafestdata%>%
+#  filter(avgoverallcompanyrating !=0)%>%
+#  slice(891976:1274249)
 
 #linear regression predicting avgoverallcompanyrating
-reg1<-lm(avgoverallcompanyrating~descriptionLengthChars+supervisingJob+noEducationRequirementsJob+highSchoolEducationRequirementsJob+higherEducationRequirementsJob+applies+clicks+employeecount+employerIndustry+admin1, data = train)
-summary(reg1)
+#reg1<-lm(avgoverallcompanyrating~descriptionLengthChars+supervisingJob+noEducationRequirementsJob+highSchoolEducationRequirementsJob+higherEducationRequirementsJob+applies+clicks+employeecount+employerIndustry+admin1, data = train)
+#summary(reg1)
 
-prediction<-  data.frame(prediction = predict(reg1, newdata = na.omit(test)))
-test<-na.omit(test)%>%
-  bind_cols(prediction)
+#prediction<-  data.frame(prediction = predict(reg1, newdata = na.omit(test)))
+#test<-na.omit(test)%>%
+#  bind_cols(prediction)
 
-test<-test%>%
-  select(avgoverallcompanyrating,prediction)%>%
-  mutate(difference = avgoverallcompanyrating - prediction)
+#test<-test%>%
+#  select(avgoverallcompanyrating,prediction)%>%
+#  mutate(difference = avgoverallcompanyrating - prediction)
 
-ggplot(test, aes(difference))+
-  geom_histogram(bins= 500)
+#ggplot(test, aes(difference))+
+#  geom_histogram(bins= 500)
 
 
 #ratio of number of jobs in area to number of applicants
-ratio<-datafestdata%>%
-  group_by(admin1,employerIndustry)%>%
-  summarise(num_jobs = n_distinct(jobHash), 
-            num_applicants = sum(applies),
-            num_clicks = sum(clicks, na.rm=TRUE))%>%
-  ungroup()%>%
-  mutate(ratio_applications_to_jobs = num_applicants/num_jobs,
-         ratio_clicks_to_jobs = num_clicks/num_jobs)
+#ratio<-datafestdata%>%
+#  group_by(admin1,employerIndustry)%>%
+#  summarise(num_jobs = n_distinct(jobHash), 
+#            num_applicants = sum(applies),
+#            num_clicks = sum(clicks, na.rm=TRUE))%>%
+#  ungroup()%>%
+#  mutate(ratio_applications_to_jobs = num_applicants/num_jobs,
+#         ratio_clicks_to_jobs = num_clicks/num_jobs)
 ```
 
 
 ```{r}
-indeed_mini <- readr::read_csv("Indeed_mini.csv")
-indeed_full <- readr::read_csv("dataFestReleaseFinal_3_23.csv")
+data_mini <- readr::read_csv("data_mini.csv")
+data_full <- readr::read_csv("dataFestReleaseFinal_3_23.csv")
 ```
 
 ```{r}
-head(indeed_full)
+head(data_full)
 ```
 
 ```{r}
-indeed_full_edit <- indeed_full 
+data_full_edit <- data_full 
 
-indeed_full_region <- indeed_full %>%
+data_full_region <- data_full %>%
   group_by(admin1, normtitlecategory) %>%
   summarize(n_jobs = n_distinct(jobHash), n_applicants = sum(applies), age = mean(jobagedays)) %>%
   mutate(ratio = n_jobs/n_applicants) %>%
   arrange(age) %>%
   filter(normtitlecategory == "tech")
-head(indeed_full_region)
+head(data_full_region)
 
 ```
 
 
 ```{r}
 
-indeed_mini <- readr::read_csv("Indeed_mini.csv")
-indeed_full <- readr::read_csv("dataFestReleaseFinal_3_23.csv")
+data_mini <- readr::read_csv("data_mini.csv")
+data_full <- readr::read_csv("dataFestReleaseFinal_3_23.csv")
 state_populations <-readr::read_csv("state_populations.csv")
 ```
 
@@ -92,7 +93,7 @@ state_populations <-readr::read_csv("state_populations.csv")
 
 #Avg length of posting
 
-indeed_full %>%
+data_full %>%
   group_by(normtitlecategory) %>%
   summarize(avg_job_length = mean(jobagedays))%>%
   ggplot(aes(y=avg_job_length, x=reorder(normtitlecategory, avg_job_length))) + geom_bar(stat="identity")+
@@ -100,7 +101,7 @@ indeed_full %>%
 
 #Total Applicants
 
-indeed_full %>%
+data_full %>%
   group_by(normtitlecategory) %>%
   summarize(total_applicants = sum(applies)) %>%
   ggplot(aes(x = reorder(normtitlecategory, total_applicants), y = total_applicants)) +
@@ -110,7 +111,7 @@ indeed_full %>%
 
 #Applicants/day
 
-indeed_full %>%
+data_full %>%
   group_by(normtitlecategory) %>%
   summarize(avg_applicants = mean(applies)) %>%
   ggplot(aes(x = reorder(normtitlecategory, avg_applicants), y = avg_applicants)) +
@@ -122,7 +123,7 @@ indeed_full %>%
 
 
 ```{r}
-indeed_full %>%
+data_full %>%
   group_by(admin1) %>%
   summarize(total_applications = sum(applies)) %>%
   ggplot(aes(x=reorder(admin1,total_applications), y=total_applications)) + geom_bar(stat = "identity") +
@@ -141,12 +142,12 @@ Pacific = c("AK", "CA", "HI", "OR", "WA")
 NewEngland = c("CT", "ME", "MA", "NH", "RI", "VT")
 MidAtlantic = c("NJ", "NY", "PA")
 
-indeed_full_region <- indeed_full %>%
+data_full_region <- data_full %>%
   mutate(region = ifelse(admin1 %in% EastNorthCentral, "EastNorthCentral", ifelse (admin1 %in% WestNorthCentral, "WestNorthCentral", ifelse(admin1 %in% SouthAtlantic, "SouthAtlantic", ifelse(admin1 %in% EastSouthCentral, "EastSouthCentral", ifelse(admin1 %in% WestSouthCentral, "WestSouthCentral", ifelse(admin1 %in% Mountain, "Mountain", ifelse(admin1 %in% Pacific, "Pacific", ifelse(admin1 %in% NewEngland, "NewEngland", ifelse(admin1 %in% MidAtlantic, "MidAtlantic", "Other"))))))))))
 
 
-indeed_full_region_pop <- indeed_full_region %>%
-  inner_join(state_populations, by = c("admin1" = "State"))
+data_full_region_pop <- data_full_region %>%
+  data_join(state_populations, by = c("admin1" = "State"))
 
 
 
@@ -155,18 +156,18 @@ indeed_full_region_pop <- indeed_full_region %>%
 
 ```{r}
 
-indeed_full %>%
+data_full %>%
   group_by(admin1, normtitlecategory) %>%
   summarize(total_app = sum(applies))
 
 
-indeed_full_region %>%
+data_full_region %>%
   group_by(region, normtitlecategory) %>%
   summarize(total_app = sum(applies))
 
 # job applications adjusted for number of people in region
 
-indeed_full_region_pop %>%
+data_full_region_pop %>%
   group_by(region, normtitlecategory) %>%
   summarize(num_applicants = sum(applies), num_people = sum(Pop), app_per_1M= (num_applicants/num_people) * 1000000)
 
@@ -180,7 +181,7 @@ indeed_full_region_pop %>%
 
 ```{r}
 leastcompjobs <- function(area) {
-  indeed_full_region_pop %>%
+  data_full_region_pop %>%
   filter(region == area) %>%
   group_by(region, normtitlecategory) %>%
   summarize(avg_age = sum(jobagedays)/n_distinct(jobHash), num_jobs = n_distinct(jobHash), app_per_job = sum(applies)/num_jobs) %>%
@@ -191,7 +192,7 @@ leastcompjobs <- function(area) {
 
 
 mostcompjobs <- function(area) {
-  indeed_full_region_pop %>%
+  data_full_region_pop %>%
   filter(region == area) %>%
   group_by(region, normtitlecategory) %>%
   summarize(applications_per_1M = (sum(applies)/sum(Pop)) * 1000000) %>%
@@ -201,7 +202,7 @@ mostcompjobs <- function(area) {
 ```
 
 ```{r}
-indeed_full_region <- indeed_full_region %>%
+data_full_region <- data_full_region %>%
   mutate(education_level = ifelse(noEducationRequirementsJob == 1, 1,
                          ifelse(highSchoolEducationRequirementsJob == 1, 2, 
                          ifelse(higherEducationRequirementsJob == 1, 3, 0))))
@@ -210,7 +211,7 @@ indeed_full_region <- indeed_full_region %>%
 
 #given region, output industry
 least_comp_by_region <- function(area, education) {
-  indeed_full_region %>%
+  data_full_region %>%
     group_by(jobHash) %>%
     mutate(age = max(jobagedays)) %>%
     ungroup() %>%
@@ -223,7 +224,7 @@ least_comp_by_region <- function(area, education) {
 
 
 most_comp_by_region <- function(area, education) {
-  indeed_full_region %>%
+  data_full_region %>%
     group_by(jobHash) %>%
     mutate(age = max(jobagedays)) %>%
     ungroup() %>%
@@ -241,10 +242,10 @@ most_comp_by_region(area = "NewEngland", education = 2)
 
 
 least_comp_by_industry <- function(industry, education) {
-  indeed_full_region %>%
+  data_full_region %>%
     group_by(jobHash) %>%
     mutate(age = max(jobagedays)) %>%
-    ungroup()
+    ungroup() %>%
     filter(age == jobagedays, normtitlecategory == industry, education_level <= education) %>%
     group_by(region) %>%
     summarize(avg_age = sum(age)/n_distinct(jobHash), app_per_job = sum(applies)/n_distinct(jobHash), comp = app_per_job * (1 / avg_age)) %>%
@@ -254,10 +255,10 @@ least_comp_by_industry <- function(industry, education) {
 
 
 most_comp_by_industry <- function(industry, education) {
-  indeed_full_region %>%
+  data_full_region %>%
     group_by(jobHash) %>%
     mutate(age = max(jobagedays)) %>%
-    ungroup()
+    ungroup() %>%
     filter(age == jobagedays, normtitlecategory == industry, education_level <= education) %>%
     group_by(region) %>%
     summarize(avg_age = sum(age)/n_distinct(jobHash), app_per_job = sum(applies)/n_distinct(jobHash), comp = app_per_job * (1 / avg_age)) %>%
@@ -268,6 +269,52 @@ most_comp_by_industry <- function(industry, education) {
 
 
 ```
+
+```{r}
+#If I am a graduating senior in New England considering a career in tech,
+#where should I go/what career should I aim for?
+
+least_comp_by_region("NewEngland", education = 2)
+least_comp_by_industry("tech", education = 2)
+
+tech_industry <- data_full_region %>%
+    group_by(jobHash) %>%
+    mutate(age = max(jobagedays)) %>%
+    ungroup() %>%
+    filter(age == jobagedays, normtitlecategory == "techinfo", education_level <= 2) %>%
+    group_by(region) %>%
+    summarize(avg_age = sum(age)/n_distinct(jobHash), app_per_job = sum(applies)/n_distinct(jobHash), comp = app_per_job * (1 / avg_age)) %>%
+    arrange(comp) 
+tech_industry
+
+new_england_region <- data_full_region %>%
+    group_by(jobHash) %>%
+    mutate(age = max(jobagedays)) %>%
+    ungroup() %>%
+    filter(age == jobagedays, region == "NewEngland", education_level <= 2) %>%
+    group_by(normtitlecategory) %>%
+    summarize(avg_age = mean(age), app_per_job = sum(applies)/n_distinct(jobHash), comp = app_per_job * (1 / avg_age)) %>%
+    arrange(comp) %>%
+  head(10)
+new_england_region
+
+
+
+
+ne_graph <- ggplot(data = new_england_region, aes(x = reorder(normtitlecategory, -comp), y = comp)) +
+  geom_point(size = 2) +
+  xlab("Industry") + ylab("Competitiveness Score") + ggtitle("Least Competitive Industries in New England") +
+  theme_fivethirtyeight() +
+  theme(axis.text = element_text(angle= 90, hjust = 1)) +
+  scale_x_discrete = NULL, breaks = c("sanitation", "mednurse", "therapy", "meddental", "automotive", "automotive", "insurance", "tech", "veterinary", "agriculture", "analyst"), labels = c("Sanitation", "Nurse", "Therapy", "Dental", "Automotive", "Insurance", "Tech", "Veterinary", "Agriculture", "Analyst")
+  
+ne_graph
+
+
+
+```
+
+
 
 ```{r}
 leastcompjobs("NewEngland")
@@ -297,7 +344,7 @@ regions = c("EastNorthCentral", "WestNorthCentral", "SouthAtlantic", "EastSourth
 
 
 most_comp_cities = function(jobfield, state) {
-  indeed_full_region_pop %>%
+  data_full_region_pop %>%
   filter(normtitlecategory == jobfield & admin1 == state) %>%
   group_by(city) %>%
   summarize(numjobs = n(), numapplicants = sum(applies), applications_per_job = numapplicants/numjobs) %>%
@@ -309,7 +356,7 @@ most_comp_cities = function(jobfield, state) {
 most_comp_cities("techsoftware", "CA")
 
 least_comp_cities = function(jobfield, state) {
-  indeed_full_region_pop %>%
+  data_full_region_pop %>%
   filter(normtitlecategory == jobfield & admin1 == state) %>%
   group_by(city) %>%
   summarize(numjobs = n(), numapplicants = sum(applies), applications_per_job = numapplicants/numjobs) %>%
