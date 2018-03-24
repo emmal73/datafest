@@ -4,5 +4,13 @@ output: html_notebook
 ---
 
 ```{r}
-readr::read_csv("Indeed_mini.csv")
+library(readr)
+library(plyr)
+library(stringr)
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+
+datafestdata<-readr::read_csv("/Users/rileyboeth/Downloads/Datafest/dataFestReleaseFinal_3_23.csv")
+
 ```
