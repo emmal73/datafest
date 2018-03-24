@@ -206,15 +206,25 @@ indeed_full_region <- indeed_full_region %>%
                          ifelse(highSchoolEducationRequirementsJob == 1, 2, 
                          ifelse(higherEducationRequirementsJob == 1, 3, 0))))
 
+
+
 #given region, output industry
-least_comp_by_region <- function(region, education) {
+#least_comp_by_region <- function(region, education) {
+  age <- indeed_full_region %>%
+    group_by(jobHash) %>%
+    summarize(age = max(jobagedays))
   indeed_full_region %>%
-  filter(region == region, education_level <= education) %>%
-  group_by(normtitlecategory) %>%
-  summarize(avg_age = sum(jobagedays)/n_distinct(jobHash), app_per_job = sum(applies)/n_distinct(jobHash), comp = app_per_job * (1 / avg_age)) %>%
-  arrange(comp) %>%
+    filter(region == "NewEngland", education_level <= 3) %>%
+    #inner_join(age, by = "jobHash") %>%
+    group_by(jobHash)%>%
+    mutate(age = max(jobagedays))%>%
+    ungroup()%>%
+    filter(age == jobagedays)%>%
+    group_by(normtitlecategory, jobHash) %>%
+    summarize(avg_age = sum(age)/n_distinct(jobHash), app_per_job = sum(applies)/n_distinct(jobHash), comp = app_per_job * (1 / avg_age)) %>%
+    arrange(comp) %>%
   head(5)
-}
+#}
 
 most_comp_by_region <- function(region, education) {
   indeed_full_region %>%
@@ -227,8 +237,8 @@ most_comp_by_region <- function(region, education) {
 
 
 
-least_comp_by_region(region = "NewEngland", education = 0)
-most_comp_by_region(region = "NewEngland", education = 0)
+least_comp_by_region(region = "NewEngland", education = 2)
+most_comp_by_region(region = "NewEngland", education = 2)
 
 
 
