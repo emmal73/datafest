@@ -57,9 +57,6 @@ ratio<-datafestdata%>%
          ratio_clicks_to_jobs = num_clicks/num_jobs)
 ```
 
-library(tidyverse)
-```
-
 
 ```{r}
 indeed_mini <- readr::read_csv("Indeed_mini.csv")
@@ -82,4 +79,98 @@ indeed_full_region <- indeed_full %>%
 head(indeed_full_region)
 
 ```
+
+
+```{r}
+
+indeed_mini <- readr::read_csv("Indeed_mini.csv")
+indeed_full <- readr::read_csv("dataFestReleaseFinal_3_23.csv")
+state_populations <-readr::read_csv("state_populations.csv")
+```
+
+```{r}
+
+#Avg length of posting
+
+indeed_full %>%
+  group_by(normtitlecategory) %>%
+  summarize(avg_job_length = mean(jobagedays))%>%
+  ggplot(aes(y=avg_job_length, x=reorder(normtitlecategory, avg_job_length))) + geom_bar(stat="identity")+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1) )
+
+#Total Applicants
+
+indeed_full %>%
+  group_by(normtitlecategory) %>%
+  summarize(total_applicants = sum(applies)) %>%
+  ggplot(aes(x = reorder(normtitlecategory, total_applicants), y = total_applicants)) +
+  geom_bar(stat = "identity") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1) )
+
+
+#Applicants/day
+
+indeed_full %>%
+  group_by(normtitlecategory) %>%
+  summarize(avg_applicants = mean(applies)) %>%
+  ggplot(aes(x = reorder(normtitlecategory, avg_applicants), y = avg_applicants)) +
+  geom_bar(stat = "identity") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1) )
+
+
+```
+
+
+```{r}
+indeed_full %>%
+  group_by(admin1) %>%
+  summarize(total_applications = sum(applies)) %>%
+  ggplot(aes(x=reorder(admin1,total_applications), y=total_applications)) + geom_bar(stat = "identity") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+#add info about state populations to actually learn something from this
+
+
+EastNorthCentral = c("IL", "IN", "MI", "OH", "WI")
+WestNorthCentral = c("IA", "KS", "MN", "NE", "ND", "SD")
+SouthAtlantic = c("DE", "FL", "GA", "MD", "NC", "SC", "VA", "WV")
+EastSouthCentral = c("AL", "KY", "MS", "TN")
+WestSouthCentral = c("AR", "LA", "OK", "TX")
+Mountain = c("AZ", "CO", "ID", "MT", "NV", "NM", "UT", "WY")
+Pacific = c("AK", "CA", "HI", "OR", "WA")
+NewEngland = c("CT", "ME", "MA", "NH", "RI", "VT")
+MidAtlantic = c("NJ", "NY", "PA")
+
+indeed_full_region <- indeed_full %>%
+  mutate(region = ifelse(admin1 %in% EastNorthCentral, "EastNorthCentral", ifelse (admin1 %in% WestNorthCentral, "WestNorthCentral", ifelse(admin1 %in% SouthAtlantic, "SouthAtlantic", ifelse(admin1 %in% EastSouthCentral, "EastSouthCentral", ifelse(admin1 %in% WestSouthCentral, "WestSouthCentral", ifelse(admin1 %in% Mountain, "Mountain", ifelse(admin1 %in% Pacific, "Pacific", ifelse(admin1 %in% NewEngland, "NewEngland", ifelse(admin1 %in% MidAtlantic, "MidAtlantic", "Other"))))))))))
+
+
+indeed_full_region_pop <- indeed_full_region %>%
+  inner_join(state_populations, by = c("admin1" = "State"))
+
+
+
+```
+
+
+```{r}
+
+indeed_full %>%
+  group_by(admin1, normtitlecategory) %>%
+  summarize(total_app = sum(applies))
+
+
+indeed_full_region %>%
+  group_by(region, normtitlecategory) %>%
+  summarize(total_app = sum(applies))
+
+# job applications adjusted for number of people in region
+
+indeed_full_region_pop %>%
+  group_by(region) %>%
+  summarize(num_applicants = sum(applies), num_people = sum(Pop), app_per_100K= (num_applicants/num_people) * 100000)
+
+
+```
+
 
