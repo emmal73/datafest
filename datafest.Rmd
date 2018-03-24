@@ -210,37 +210,60 @@ indeed_full_region <- indeed_full_region %>%
 
 #given region, output industry
 least_comp_by_region <- function(area, education) {
-  age <- indeed_full_region %>%
-    group_by(jobHash) %>%
-    summarize(age = max(jobagedays))
   indeed_full_region %>%
-    filter(region == area, education_level <= education) %>%
-    inner_join(age, by = "jobHash") %>%
+    group_by(jobHash) %>%
+    mutate(age = max(jobagedays)) %>%
+    ungroup() %>%
+    filter(age == jobagedays, region == area, education_level <= education) %>%
     group_by(normtitlecategory) %>%
-    summarize(avg_age = sum(age)/n_distinct(jobHash), app_per_job = sum(applies)/n_distinct(jobHash), comp = app_per_job * (1 / avg_age)) %>%
+    summarize(avg_age = mean(age), app_per_job = sum(applies)/n_distinct(jobHash), comp = app_per_job * (1 / avg_age)) %>%
     arrange(comp) %>%
   head(5)
 }
 
+
 most_comp_by_region <- function(area, education) {
-  age <- indeed_full_region %>%
-    group_by(jobHash) %>%
-    summarize(age = max(jobagedays))
   indeed_full_region %>%
-    filter(region == area, education_level <= education) %>%
-    inner_join(age, by = "jobHash") %>%
+    group_by(jobHash) %>%
+    mutate(age = max(jobagedays)) %>%
+    ungroup() %>%
+    filter(age == jobagedays, region == area, education_level <= education) %>%
     group_by(normtitlecategory) %>%
-    summarize(avg_age = sum(age)/n_distinct(jobHash), app_per_job = sum(applies)/n_distinct(jobHash), comp = app_per_job * (1 / avg_age)) %>%
+    summarize(avg_age = mean(age), app_per_job = sum(applies)/n_distinct(jobHash), comp = app_per_job * (1 / avg_age)) %>%
     arrange(desc(comp)) %>%
   head(5)
 }
 
 
 
-
 least_comp_by_region(area = "NewEngland", education = 2)
 most_comp_by_region(area = "NewEngland", education = 2)
 
+
+least_comp_by_industry <- function(industry, education) {
+  indeed_full_region %>%
+    group_by(jobHash) %>%
+    mutate(age = max(jobagedays)) %>%
+    ungroup()
+    filter(age == jobagedays, normtitlecategory == industry, education_level <= education) %>%
+    group_by(region) %>%
+    summarize(avg_age = sum(age)/n_distinct(jobHash), app_per_job = sum(applies)/n_distinct(jobHash), comp = app_per_job * (1 / avg_age)) %>%
+    arrange(comp) %>%
+  head(5)
+}
+
+
+most_comp_by_industry <- function(industry, education) {
+  indeed_full_region %>%
+    group_by(jobHash) %>%
+    mutate(age = max(jobagedays)) %>%
+    ungroup()
+    filter(age == jobagedays, normtitlecategory == industry, education_level <= education) %>%
+    group_by(region) %>%
+    summarize(avg_age = sum(age)/n_distinct(jobHash), app_per_job = sum(applies)/n_distinct(jobHash), comp = app_per_job * (1 / avg_age)) %>%
+    arrange(desc(comp)) %>%
+  head(5)
+}
 
 
 
