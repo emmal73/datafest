@@ -4,17 +4,17 @@
 
 library(tidyverse)
 
-datafestdata<-readr::read_csv("/Users/rileyboeth/Downloads/Datafest/dataFestReleaseFinal_3_23.csv")
+#datafestdata<-readr::read_csv("/Users/rileyboeth/Downloads/Datafest/dataFestReleaseFinal_3_23.csv")
 
-ggplot(datafestdata, aes(applies))+
-  geom_histogram(bins  = 500)
+#ggplot(datafestdata, aes(applies))+
+#  geom_histogram(bins  = 500)
 
-ggplot(datafestdata, aes(clicks))+
-  geom_histogram(bins  = 500)
+#ggplot(datafestdata, aes(clicks))+
+#  geom_histogram(bins  = 500)
 
 
-ggplot(datafestdata, aes(descriptionLengthChars))+
-  geom_histogram(bins  = 500)
+#ggplot(datafestdata, aes(descriptionLengthChars))+
+#  geom_histogram(bins  = 500)
 
 ```
 
@@ -183,10 +183,12 @@ leastcompjobs <- function(area) {
   indeed_full_region_pop %>%
   filter(region == area) %>%
   group_by(region, normtitlecategory) %>%
-  summarize(applications_per_1M = (sum(applies)/sum(Pop)) * 1000000) %>%
-  arrange(applications_per_1M) %>%
+  summarize(avg_age = sum(jobagedays)/n_distinct(jobHash), num_jobs = n_distinct(jobHash), app_per_job = sum(applies)/num_jobs) %>%
+  summarize() %>%
+  arrange(competition) %>%
   head(5)
 }
+
 
 mostcompjobs <- function(area) {
   indeed_full_region_pop %>%
@@ -196,6 +198,41 @@ mostcompjobs <- function(area) {
   arrange(desc(applications_per_1M)) %>%
   head(5)
 }
+```
+
+```{r}
+indeed_full_region <- indeed_full_region %>%
+  mutate(education_level = ifelse(noEducationRequirementsJob == 1, 1,
+                         ifelse(highSchoolEducationRequirementsJob == 1, 2, 
+                         ifelse(higherEducationRequirementsJob == 1, 3, 0))))
+
+#given region, output industry
+least_comp_by_region <- function(region, education) {
+  indeed_full_region %>%
+  filter(region == region, education_level <= education) %>%
+  group_by(normtitlecategory) %>%
+  summarize(avg_age = sum(jobagedays)/n_distinct(jobHash), app_per_job = sum(applies)/n_distinct(jobHash), comp = app_per_job * (1 / avg_age)) %>%
+  arrange(comp) %>%
+  head(5)
+}
+
+most_comp_by_region <- function(region, education) {
+  indeed_full_region %>%
+  filter(region == region, education_level <= education) %>%
+  group_by(normtitlecategory) %>%
+  summarize(avg_age = sum(jobagedays)/n_distinct(jobHash), app_per_job = sum(applies)/n_distinct(jobHash), comp = app_per_job * (1 / avg_age)) %>%
+  arrange(desc(comp)) %>%
+  head(5)
+}
+
+
+
+least_comp_by_region(region = "NewEngland", education = 0)
+most_comp_by_region(region = "NewEngland", education = 0)
+
+
+
+
 ```
 
 ```{r}
