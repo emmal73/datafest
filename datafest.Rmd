@@ -4,5 +4,28 @@ output: html_notebook
 ---
 
 ```{r}
-readr::read_csv("Indeed_mini.csv")
+library(tidyverse)
 ```
+
+
+```{r}
+indeed_mini <- readr::read_csv("Indeed_mini.csv")
+indeed_full <- readr::read_csv("dataFestReleaseFinal_3_23.csv")
+```
+
+```{r}
+head(indeed_full)
+```
+
+```{r}
+indeed_full_edit <- indeed_full 
+
+indeed_full_region <- indeed_full %>%
+  group_by(admin1, normtitlecategory) %>%
+  summarize(n_jobs = n_distinct(jobHash), n_applicants = sum(applies)) %>%
+  mutate(ratio = n_jobs/n_applicants) %>%
+  arrange(desc(ratio))
+head(indeed_full_region)
+
+```
+
