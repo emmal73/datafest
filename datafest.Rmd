@@ -1,7 +1,4 @@
----
-title: "A-super-NOVA Datafest"
-output: html_notebook
----
+
 
 ```{r}
 
