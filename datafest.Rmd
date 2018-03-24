@@ -167,10 +167,86 @@ indeed_full_region %>%
 # job applications adjusted for number of people in region
 
 indeed_full_region_pop %>%
-  group_by(region) %>%
-  summarize(num_applicants = sum(applies), num_people = sum(Pop), app_per_100K= (num_applicants/num_people) * 100000)
+  group_by(region, normtitlecategory) %>%
+  summarize(num_applicants = sum(applies), num_people = sum(Pop), app_per_1M= (num_applicants/num_people) * 1000000)
 
 
+
+#do function to find the jobs with the lowest app per 1m rates
+#apply this function to each region
+```
+
+
+
+```{r}
+leastcompjobs <- function(area) {
+  indeed_full_region_pop %>%
+  filter(region == area) %>%
+  group_by(region, normtitlecategory) %>%
+  summarize(applications_per_1M = (sum(applies)/sum(Pop)) * 1000000) %>%
+  arrange(applications_per_1M) %>%
+  head(5)
+}
+
+mostcompjobs <- function(area) {
+  indeed_full_region_pop %>%
+  filter(region == area) %>%
+  group_by(region, normtitlecategory) %>%
+  summarize(applications_per_1M = (sum(applies)/sum(Pop)) * 1000000) %>%
+  arrange(desc(applications_per_1M)) %>%
+  head(5)
+}
+```
+
+```{r}
+leastcompjobs("NewEngland")
+mostcompjobs("NewEngland")
+```
+
+```{r}
+
+regions = c("EastNorthCentral", "WestNorthCentral", "SouthAtlantic", "EastSourthCentral", "WestSouthCentral", "Mountain", "Pacific", "NewEngland", "MidAtlantic", "Other")
+most_comp_jobs <- lapply(regions, FUN = mostcompjobs) %>% bind_rows()
+least_comp_jobs <- lapply(regions, FUN = leastcompjobs) %>% bind_rows()
+
+
+most_comp_jobs %>%
+  arrange(desc(applications_per_1M))
+
+most_comp_jobs %>%
+  arrange(desc(applications_per_1M))
+```
+
+
+```{r}
+
+#density of jobs in a given field by region
+
+regions = c("EastNorthCentral", "WestNorthCentral", "SouthAtlantic", "EastSourthCentral", "WestSouthCentral", "Mountain", "Pacific", "NewEngland", "MidAtlantic", "Other")
+
+
+most_comp_cities = function(jobfield, state) {
+  indeed_full_region_pop %>%
+  filter(normtitlecategory == jobfield & admin1 == state) %>%
+  group_by(city) %>%
+  summarize(numjobs = n(), numapplicants = sum(applies), applications_per_job = numapplicants/numjobs) %>%
+  arrange(desc(applications_per_job)) %>%
+  head(10)
+}
+
+
+most_comp_cities("techsoftware", "CA")
+
+least_comp_cities = function(jobfield, state) {
+  indeed_full_region_pop %>%
+  filter(normtitlecategory == jobfield & admin1 == state) %>%
+  group_by(city) %>%
+  summarize(numjobs = n(), numapplicants = sum(applies), applications_per_job = numapplicants/numjobs) %>%
+  arrange(applications_per_job) %>%
+  head(10)
+}
+
+least_comp_cities("techsoftware", "CA")
 ```
 
 
