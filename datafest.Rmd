@@ -216,10 +216,6 @@ least_comp_by_region <- function(area, education) {
   indeed_full_region %>%
     filter(region == area, education_level <= education) %>%
     inner_join(age, by = "jobHash") %>%
-    group_by(jobHash)%>%
-    mutate(age = max(jobagedays))%>%
-    ungroup()%>%
-    filter(age == jobagedays)%>%
     group_by(normtitlecategory) %>%
     summarize(avg_age = sum(age)/n_distinct(jobHash), app_per_job = sum(applies)/n_distinct(jobHash), comp = app_per_job * (1 / avg_age)) %>%
     arrange(comp) %>%
@@ -233,10 +229,6 @@ most_comp_by_region <- function(area, education) {
   indeed_full_region %>%
     filter(region == area, education_level <= education) %>%
     inner_join(age, by = "jobHash") %>%
-    group_by(jobHash)%>%
-    mutate(age = max(jobagedays))%>%
-    ungroup()%>%
-    filter(age == jobagedays)%>%
     group_by(normtitlecategory) %>%
     summarize(avg_age = sum(age)/n_distinct(jobHash), app_per_job = sum(applies)/n_distinct(jobHash), comp = app_per_job * (1 / avg_age)) %>%
     arrange(desc(comp)) %>%
