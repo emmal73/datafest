@@ -22,9 +22,10 @@ indeed_full_edit <- indeed_full
 
 indeed_full_region <- indeed_full %>%
   group_by(admin1, normtitlecategory) %>%
-  summarize(n_jobs = n_distinct(jobHash), n_applicants = sum(applies)) %>%
+  summarize(n_jobs = n_distinct(jobHash), n_applicants = sum(applies), age = mean(jobagedays)) %>%
   mutate(ratio = n_jobs/n_applicants) %>%
-  arrange(desc(ratio))
+  arrange(age) %>%
+  filter(normtitlecategory == "tech")
 head(indeed_full_region)
 
 ```
