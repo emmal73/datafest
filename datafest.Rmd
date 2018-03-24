@@ -1,0 +1,8 @@
+---
+title: "A-super-NOVA Datafest"
+output: html_notebook
+---
+
+```{r}
+readr::read_csv("Indeed_mini.csv")
+```
