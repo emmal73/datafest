@@ -10,14 +10,12 @@ library(tidyverse)
 
 
 ```{r}
-
 indeed_mini <- readr::read_csv("Indeed_mini.csv")
 indeed_full <- readr::read_csv("dataFestReleaseFinal_3_23.csv")
 state_populations <-readr::read_csv("state_populations.csv")
 ```
 
 ```{r}
-
 #Avg length of posting
 
 indeed_full %>%
