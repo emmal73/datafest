@@ -4,13 +4,8 @@ output: html_notebook
 ---
 
 ```{r}
-<<<<<<< HEAD
-library(readr)
-library(plyr)
-library(stringr)
-library(tidyr)
-library(dplyr)
-library(ggplot2)
+
+library(tidyverse)
 
 datafestdata<-readr::read_csv("/Users/rileyboeth/Downloads/Datafest/dataFestReleaseFinal_3_23.csv")
 
@@ -65,7 +60,6 @@ ratio<-datafestdata%>%
          ratio_clicks_to_jobs = num_clicks/num_jobs)
 ```
 
-=======
 library(tidyverse)
 ```
 
@@ -92,4 +86,3 @@ head(indeed_full_region)
 
 ```
 
->>>>>>> 9088603656efa3f74cbbbe46c8b0ff5b3236a679
